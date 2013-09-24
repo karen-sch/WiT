@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>"Will in Town"-Stationen</title>
+	<link href='http://fonts.googleapis.com/css?family=Miniver|Raleway' rel='stylesheet' type='text/css'>
+     <style>
+      html, body, #map-canvas {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+		font-family: 'Raleway', sans-serif;
+      }
+	  h1 {
+		  position: fixed;
+		  top: 42px;
+		  left: 100px;
+		  z-index:1000;
+		  font-family: 'Miniver', cursive;
+		  font-size: 42pt;
+		  font-weight: normal;
+		  text-shadow: 1px 1px 1px #555;
+	  }
+	  h2, h3, h4 {
+		   font-weight: normal;
+		  font-family: 'Miniver', cursive;
+	  }
+	  #infobox {
+		  position: fixed;
+		  overflow: auto;
+		  top: 150px;
+		  right: 30px;
+		  bottom: 30px;
+		  background-color: #fff;
+		  z-index:1000;
+		  width: 350px;
+		  border-style: solid;
+		  border-color:#ccc;
+		  border-width: 1px;
+		  padding: 10px;
+	  }
+	  
+    </style>
+	 <link rel="stylesheet" href="colorbox/colorbox.css">
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="oms.min.js"></script>
+	<script type="text/javascript" src="colorbox/jquery.colorbox-min.js"></script>
+  
+    <script type="text/javascript">
+		var map;
+		var oms;
+		var image = 'images/flickr.png';
+				function initialize() {
+				  var mapOptions = {
+					zoom: 15,
+					center: new google.maps.LatLng(50.94129, 6.95817),
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				  };
+				  map = new google.maps.Map(document.getElementById('map-canvas'),
+					  mapOptions);
+					  oms = new OverlappingMarkerSpiderfier(map, {keepSpiderfied:true});
+				}				
+    (function(){
+       
+        $.getJSON('stations.json', function(data) {
+               initialize();
+				var marker;
+                $.each(data, function(key, val) {
+					var myLatlng = new google.maps.LatLng(val.lat,val.lon);
+					marker = new google.maps.Marker({
+						  position: myLatlng,
+						  map: map,
+						  title: val.ort
+					  });
+					//  oms.addMarker(marker); 
+					   google.maps.event.addListener(marker, 'click', function() {
+					$("#infobox").html("<h2>"+val.ort+"</h2><p>"+val.adresse
+					+"</p><h3>K&ouml;lsche Geschichte</h3><p>"+val.sage
+					+"</p><h3>Shakespeare-Bezug</h3><p>"+val.shakespeare
+					+"</p><h3>Spielelemente</h3><p>"+val.gamestory+"</p>");
+				  });
+                });		
+                // for doc in docs
+            });
+			$.ajax({
+                url: 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=caf160db8d568920296a366f58cb3a0c&tags=will-in-town&extras=geo%2C+url_n%2C+url_c%2C+description&format=json&jsoncallback=?',
+                dataType: 'jsonp',
+                success: function(data) {
+					$.each(data.photos.photo, function(key, val) {
+						var myLatlng = new google.maps.LatLng(val.latitude,val.longitude);
+						marker = new google.maps.Marker({
+							  position: myLatlng,
+							  map: map,
+							  title: val.title,							  
+							  icon: image,
+							  url_n: val.url_n,
+							  url_c: val.url_c,
+							  flickr: 'http://www.flickr.com/photos/'+val.owner+'/'+val.id,
+							  desc: val.description._content
+						  });
+						  oms.addMarker(marker); 					  
+						
+					 });
+					 oms.addListener('click', function(marker, event) {
+						  $("#infobox").html("<h2>"+marker.title+"</h2><a href='"+marker.url_c+"' class='gallery'><img src='"
+						  +marker.url_n+"' align='center'/></a><p>"+marker.desc+"</p><p><a href='"+marker.flickr+"' target='_blank'>Link zu Flickr</a></p>");
+						  $('a.gallery').colorbox({rel:'gal'});
+						});
+				
+				}
+			});
+    })();
+
+    </script>
+</head>
+
+<body>
+   <h1>Will in Town</h1>
+ <div id="map-canvas"></div>
+    <div id="infobox">Bitte klicken Sie auf einen Marker!</div>
+</body>
+</html>
