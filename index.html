@@ -84,7 +84,7 @@
                 // for doc in docs
             });
 			$.ajax({
-                url: 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=caf160db8d568920296a366f58cb3a0c&tags=will-in-town&extras=geo%2C+url_n%2C+url_c%2C+description&format=json&jsoncallback=?',
+                url: 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=b5013f75acf5c4f05a477b8d02e066b2&tags=will-in-town&extras=geo%2C+url_n%2C+url_c%2C+description&format=json&jsoncallback=?',
                 dataType: 'jsonp',
                 success: function(data) {
 					$.each(data.photos.photo, function(key, val) {
